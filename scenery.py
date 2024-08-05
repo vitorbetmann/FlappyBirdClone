@@ -6,7 +6,7 @@ class Scenery:
 
     BG_SCROLL_SPEED = 1
     BG_LOOPING_POINT = 0.357
-    GROUND_SCROLL_SPEED = 2
+    GROUND_SCROLL_SPEED = 3
     GROUND_LOOPING_POINT = 0.4
 
     def __init__(self, game):
@@ -43,6 +43,8 @@ class Scenery:
         )
         self.ground_rect.left = -self.ground_scroll_pos
 
-    def draw(self):
+    def draw_bg(self):
         self.screen.blit(self.bg_img, self.bg_rect)
+
+    def draw_ground(self):
         self.screen.blit(self.ground_img, self.ground_rect)
