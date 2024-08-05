@@ -2,6 +2,7 @@ import sys
 
 import pygame
 
+from bird import Bird
 from scenery import Scenery
 from settigns import Settings
 
@@ -19,6 +20,7 @@ class FlappyBirdClone:
         self.clock = pygame.time.Clock()
 
         self.scenery = Scenery(self)
+        self.bird = Bird(self)
 
         pygame.display.set_caption("Fifty Bird")
         pygame.display.set_icon(pygame.image.load("images/bird.png"))
@@ -48,6 +50,7 @@ class FlappyBirdClone:
     def _draw_all(self):
         self.screen.fill("black")
         self.scenery.draw()
+        self.bird.draw()
 
 
 if __name__ == "__main__":

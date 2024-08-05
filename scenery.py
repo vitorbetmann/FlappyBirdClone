@@ -4,9 +4,9 @@ import pygame
 class Scenery:
     """A class to control the ground and background's movement."""
 
-    BG_SCROLL_SPEED = 2
+    BG_SCROLL_SPEED = 1
     BG_LOOPING_POINT = 0.357
-    GROUND_SCROLL_SPEED = 4
+    GROUND_SCROLL_SPEED = 2
     GROUND_LOOPING_POINT = 0.4
 
     def __init__(self, game):
@@ -15,17 +15,18 @@ class Scenery:
         self.screen_rect = game.screen_rect
 
         # Initialize background
-        bg_img = pygame.image.load("images/background.png")
+        self.bg_img = pygame.image.load("images/background.png")
         self.bg_img = pygame.transform.scale_by(
-            bg_img, self.settings.WINDOW_SIZE[1] / bg_img.get_height()
+            self.bg_img, self.settings.WINDOW_SIZE[1] / self.bg_img.get_height()
         )
         self.bg_rect = self.bg_img.get_rect()
         self.bg_scroll_pos = 0
 
         # Initialize ground
-        ground_img = pygame.image.load("images/ground.png")
+        self.ground_img = pygame.image.load("images/ground.png")
         self.ground_img = pygame.transform.scale_by(
-            ground_img, self.settings.WINDOW_SIZE[1] / 10 / ground_img.get_height()
+            self.ground_img,
+            self.settings.WINDOW_SIZE[1] / 10 / self.ground_img.get_height(),
         )
         self.ground_rect = self.ground_img.get_rect()
         self.ground_rect.bottom = self.screen_rect.bottom
