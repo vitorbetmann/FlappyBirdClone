@@ -17,7 +17,7 @@ class Scenery:
         # Initialize background
         self.bg_img = pygame.image.load("images/background.png")
         self.bg_img = pygame.transform.scale_by(
-            self.bg_img, self.settings.WINDOW_SIZE[1] / self.bg_img.get_height()
+            self.bg_img, self.settings.SCREEN_SIZE[1] / self.bg_img.get_height()
         )
         self.bg_rect = self.bg_img.get_rect()
         self.bg_scroll_pos = 0
@@ -26,7 +26,7 @@ class Scenery:
         self.ground_img = pygame.image.load("images/ground.png")
         self.ground_img = pygame.transform.scale_by(
             self.ground_img,
-            self.settings.WINDOW_SIZE[1] / 10 / self.ground_img.get_height(),
+            self.settings.SCREEN_SIZE[1] / 10 / self.ground_img.get_height(),
         )
         self.ground_rect = self.ground_img.get_rect()
         self.ground_rect.bottom = self.screen_rect.bottom

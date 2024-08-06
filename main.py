@@ -3,7 +3,7 @@ import sys
 import pygame
 
 from bird import Bird
-from pipe import Pipe
+from pipe_pair import PipePair
 from scenery import Scenery
 from settigns import Settings
 
@@ -14,9 +14,7 @@ class FlappyBirdClone:
     def __init__(self):
         pygame.init()
         self.settings = Settings()
-        self.screen = pygame.display.set_mode(
-            self.settings.WINDOW_SIZE, flags=pygame.SCALED
-        )
+        self.screen = pygame.display.set_mode(Settings.SCREEN_SIZE, flags=pygame.SCALED)
         self.screen_rect = self.screen.get_rect()
         self.clock = pygame.time.Clock()
 
@@ -26,7 +24,7 @@ class FlappyBirdClone:
         pygame.display.set_caption("Fifty Bird")
         pygame.display.set_icon(pygame.image.load("images/bird.png"))
 
-        self.pipes = pygame.sprite.Group()
+        self.pipe_pairs = pygame.sprite.Group()
         self.spawn_timer = int()
 
     def run(self):
@@ -34,9 +32,12 @@ class FlappyBirdClone:
             self._check_for_events()
             self._update_all()
 
+            ...
+
             self._draw_all()
             pygame.display.update()
             self.clock.tick(self.settings.FPS)
+            print(self.clock.get_fps())
 
     def _check_for_events(self):
         for event in pygame.event.get():
@@ -55,19 +56,18 @@ class FlappyBirdClone:
     def _update_all(self):
         self.scenery.update()
         self._spawn_pipe()
-        self.pipes.update()
+        self.pipe_pairs.update()
         self.bird.update()
 
     def _draw_all(self):
-        self.screen.fill("black")
         self.scenery.draw_bg()
-        self.pipes.draw(self.screen)
+        self.pipe_pairs.draw(self.screen)
         self.scenery.draw_ground()
         self.bird.draw()
 
     def _spawn_pipe(self):
         if pygame.time.get_ticks() - self.spawn_timer > self.settings.SPAWN_TIME:
-            Pipe(self, self.pipes)
+            PipePair(self, self.pipe_pairs)
             self.spawn_timer = pygame.time.get_ticks()
 
 

@@ -6,6 +6,8 @@ class Bird(Sprite):
     """A class to control and represent the bird character."""
 
     BIRD_IMAGE = pygame.transform.scale_by(pygame.image.load("images/bird.png"), 2.5)
+    pygame.mixer.init()
+    JUMP_SOUND = pygame.mixer.Sound("sounds/jump.wav")
     GRAVITY = 0.5
     JUMP_SPEED = 8
 
@@ -26,5 +28,5 @@ class Bird(Sprite):
         self.rect.y += self.speed
 
     def jump(self):
-
+        Bird.JUMP_SOUND.play()
         self.speed = -Bird.JUMP_SPEED

@@ -1,27 +1,22 @@
-import random
-
 import pygame
 from pygame.sprite import Sprite
 
 
 class Pipe(Sprite):
     PIPE_IMAGE = pygame.transform.scale_by(pygame.image.load("images/pipe.png"), 2)
-    PIPE_SCROLL = -3
+    PIPE_SCROLL = 3
+    PIPE_POSITION_TOP = "top"
+    PIPE_POSITION_BOTTOM = "bottom"
 
-    def __init__(self, game, group):
+    def __init__(self, group, pos=PIPE_POSITION_BOTTOM):
         super().__init__(group)
-        self.screen = game.screen
-        self.screen_rect = game.screen_rect
-        effective_screen_height = int(0.9 * self.screen_rect.height)
+
         self.image = Pipe.PIPE_IMAGE
+        if pos == Pipe.PIPE_POSITION_TOP:
+            self.image = pygame.transform.flip(self.image, True, True)
         self.rect = self.image.get_rect()
-        self.rect.left = self.screen_rect.right
-        self.rect.top = random.randrange(
-            int(self.screen_rect.height / 4),
-            effective_screen_height - int(self.rect.height * 0.1),
-        )
 
     def update(self):
-        self.rect.x += Pipe.PIPE_SCROLL
-        if self.rect.right < self.screen_rect.left:
+        self.rect.x -= Pipe.PIPE_SCROLL
+        if self.rect.right < 0:
             self.kill()
