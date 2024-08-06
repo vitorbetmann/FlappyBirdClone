@@ -20,9 +20,6 @@ class Bird(Sprite):
         self.rect.center = self.screen_rect.center
         self.speed = 0
 
-    def draw(self):
-        self.screen.blit(self.image, self.rect)
-
     def update(self):
         self.speed += Bird.GRAVITY
         self.rect.y += self.speed
@@ -30,3 +27,6 @@ class Bird(Sprite):
     def jump(self):
         Bird.JUMP_SOUND.play()
         self.speed = -Bird.JUMP_SPEED
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
