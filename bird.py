@@ -22,6 +22,11 @@ class Bird(Sprite):
         self.speed = 0
         self.can_jump = True
 
+    def reset(self):
+        self.can_jump = True
+        self.speed = 0
+        self.rect.center = self.screen_rect.center
+
     def update(self):
         self.speed += Bird.GRAVITY
         self.rect.y += self.speed

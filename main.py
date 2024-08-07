@@ -9,12 +9,14 @@ from play import Play
 from scenery import Scenery
 from scoreboard import Scoreboard
 from settigns import Settings
+from timer import Timer
 
 
 class FlappyBirdClone:
     """A class to initialize elements and manage the main game loop."""
 
-    STATE_START, STATE_PLAY, STATE_PAUSE, STATE_GAME_OVER = (
+    STATE_MENU, STATE_START, STATE_PLAY, STATE_PAUSE, STATE_GAME_OVER = (
+        "menu",
         "start",
         "play",
         "pause",
@@ -31,7 +33,6 @@ class FlappyBirdClone:
         pygame.display.set_caption("Fifty Bird")
         pygame.display.set_icon(pygame.image.load("images/bird.png"))
         pygame.mixer.music.load("sounds/marios_way.mp3")
-        pygame.mixer.music.play(-1)
         self.explosion_sound = pygame.mixer.Sound("sounds/explosion.wav")
 
         self.bird = Bird(self)
@@ -42,20 +43,32 @@ class FlappyBirdClone:
         self.play = Play(self)
         self.pause = Pause(self)
 
+        self.reset()
+        self.state = self.STATE_MENU
+
+    def reset(self):
+        pygame.mixer.music.play(-1)
+        self.bird.reset()
+        self.scoreboard.reset()
+        self.play.hide()
+        self.pause.hide()
+        self.state = self.STATE_START
         self.pipes_spawn_timer = int()
         self.delta_time = 0
-
-        self.state = self.STATE_START
+        self.pipes = pygame.sprite.Group()
+        self.timer = None
+        self.timer_start = pygame.time.get_ticks()
 
     def run(self):
         while True:
             self._check_for_events()
             self._update_all()
 
-            if self.state == self.STATE_PLAY:
-                if self._gone_past_pipe():
-                    self.scoreboard.score += 1
+            if self.state == self.STATE_START:
+                self._countdown()
 
+            if self.state == self.STATE_PLAY:
+                self._check_points()
                 self._check_for_collisions()
 
             self._draw_all()
@@ -82,24 +95,35 @@ class FlappyBirdClone:
                     case pygame.K_f:
                         pygame.display.toggle_fullscreen()
                     case pygame.K_SPACE:
-                        if self.state == self.STATE_PAUSE:
+                        if self.state == self.STATE_PLAY:
+                            self.bird.jump()
+
+                        elif self.state == self.STATE_PAUSE:
                             self.pipes_spawn_timer = (
                                 pygame.time.get_ticks() - self.delta_time
                             )
                             self.play.show()
-                        if (
-                            self.state == self.STATE_PAUSE
-                            or self.state == self.STATE_START
-                        ):
                             self.state = self.STATE_PLAY
-                        pygame.mixer.music.unpause()
-                        self.bird.jump()
+                            pygame.mixer.music.unpause()
+
+                        elif self.state == self.STATE_MENU:
+                            self.timer_start = pygame.time.get_ticks()
+                            self.state = self.STATE_START
+
+                        elif self.state == self.STATE_START:
+                            self.bird.jump()
+                            self.state = self.STATE_PLAY
+
+                        elif self.state == self.STATE_GAME_OVER:
+                            self.reset()
+
                     case pygame.K_p:
                         self.delta_time = (
                             pygame.time.get_ticks() - self.pipes_spawn_timer
                         )
                         self.state = self.STATE_PAUSE
                         self.play.hide()
+                        self.pause.show()
                         self.explosion_sound.play()
                         pygame.mixer.music.pause()
 
@@ -121,7 +145,14 @@ class FlappyBirdClone:
         if self.state == self.STATE_PAUSE:
             self.pause.draw()
         self.play.draw()
-        self.scoreboard.draw()
+        if self.state != self.STATE_GAME_OVER or self.state != self.STATE_MENU:
+            self.scoreboard.draw()
+        if self.state == self.STATE_GAME_OVER:
+            self.scoreboard.draw_game_over()
+        if self.state == self.STATE_MENU:
+            self.scoreboard.draw_menu()
+        if self.state == self.STATE_START:
+            self.timer.draw()
 
     def _spawn_pipe(self):
         if (
@@ -132,14 +163,11 @@ class FlappyBirdClone:
             self.settings.new_spawn_time()
             self.pipes_spawn_timer = pygame.time.get_ticks()
 
-    def _gone_past_pipe(self):
-        count = 0
+    def _check_points(self):
         for pipe in self.pipes:
             if not pipe.point_awarded and self.bird.rect.left > pipe.rect.right:
-                pipe.award_point()
-                count += 1
-                if count == 2:
-                    return True
+                self.scoreboard.score += pipe.award_point()
+                return True
         return False
 
     def _check_for_collisions(self):
@@ -150,6 +178,15 @@ class FlappyBirdClone:
             pygame.mixer.music.pause()
             self.bird.died()
             self.state = self.STATE_GAME_OVER
+
+    def _countdown(self):
+        current_time = pygame.time.get_ticks()
+        delta_time = current_time - self.timer_start
+        countdown_str = str(3 - int(delta_time / 1000))
+        self.timer = Timer(self, countdown_str)
+
+        if delta_time >= 3000:
+            self.state = self.STATE_PLAY
 
 
 if __name__ == "__main__":
