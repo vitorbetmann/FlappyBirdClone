@@ -16,7 +16,12 @@ class Pipe(Sprite):
             self.image = pygame.transform.flip(self.image, True, True)
         self.rect = self.image.get_rect()
 
+        self.point_awarded = False
+
     def update(self):
         self.rect.x -= Pipe.PIPE_SCROLL
         if self.rect.right < 0:
             self.kill()
+
+    def award_point(self):
+        self.point_awarded = True

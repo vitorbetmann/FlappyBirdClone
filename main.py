@@ -47,16 +47,13 @@ class FlappyBirdClone:
             self._check_for_events()
             self._update_all()
 
-            ...
-
-            self._check_for_collisions()
-
-            ...
+            if self.state == self.STATE_PLAY:
+                self._check_for_points()
+                self._check_for_collisions()
 
             self._draw_all()
             pygame.display.update()
             self.clock.tick(self.settings.FPS)
-            print(self.clock.get_fps())
 
     def _check_for_events(self):
         for event in pygame.event.get():
@@ -121,14 +118,21 @@ class FlappyBirdClone:
             > self.settings.pipes_spawn_time
         ):
             PipePair(self, self.pipes)
+            self.settings.new_spawn_time()
             self.pipes_spawn_timer = pygame.time.get_ticks()
+
+    def _check_for_points(self):
+        for pipe in self.pipes:
+            if not pipe.point_awarded and self.bird.rect.left > pipe.rect.right:
+                pipe.point_awarded = True
+                print("+1 point")
 
     def _check_for_collisions(self):
         if (
             pygame.sprite.spritecollide(self.bird, self.pipes, False)
             or self.bird.rect.bottom >= self.scenery.ground_rect.top
         ):
-            self.bird.can_jump = False
+            self.bird.died()
             self.state = self.STATE_GAME_OVER
 
 
