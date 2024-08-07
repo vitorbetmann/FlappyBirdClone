@@ -1,9 +1,7 @@
-from abc import ABC
-
 import pygame
 
 
-class FadingElement(ABC):
+class FadingElement:
     def __init__(self, game, img_src):
         self.screen = game.screen
         self.screen_rect = game.screen_rect

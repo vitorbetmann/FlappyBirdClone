@@ -8,9 +8,9 @@ class Play(FadingElement):
         self.hide()
 
     def update(self):
-        self.transparency_rate += 1
+        self.transparency_rate = min(self.transparency_rate + 1, 255)
         self.image.set_alpha(self.image.get_alpha() - self.transparency_rate)
 
     def show(self):
-        self.image.set_alpha(255)
+        super().show()
         self.transparency_rate = 0
