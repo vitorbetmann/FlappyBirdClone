@@ -4,6 +4,9 @@ from pygame.sprite import Sprite
 
 class Pipe(Sprite):
     PIPE_IMAGE = pygame.transform.scale_by(pygame.image.load("images/pipe.png"), 2)
+    pygame.mixer.init()
+    SCORE_SOUND = pygame.mixer.Sound("sounds/score.wav")
+
     PIPE_SCROLL = 3
     PIPE_POSITION_TOP = "top"
     PIPE_POSITION_BOTTOM = "bottom"
@@ -24,4 +27,5 @@ class Pipe(Sprite):
             self.kill()
 
     def award_point(self):
+        Pipe.SCORE_SOUND.play()
         self.point_awarded = True

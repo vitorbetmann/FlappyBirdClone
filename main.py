@@ -7,6 +7,7 @@ from pause import Pause
 from pipe_pair import PipePair
 from play import Play
 from scenery import Scenery
+from scoreboard import Scoreboard
 from settigns import Settings
 
 
@@ -29,9 +30,13 @@ class FlappyBirdClone:
 
         pygame.display.set_caption("Fifty Bird")
         pygame.display.set_icon(pygame.image.load("images/bird.png"))
+        pygame.mixer.music.load("sounds/marios_way.mp3")
+        pygame.mixer.music.play(-1)
+        self.explosion_sound = pygame.mixer.Sound("sounds/explosion.wav")
 
         self.bird = Bird(self)
         self.scenery = Scenery(self)
+        self.scoreboard = Scoreboard(self)
 
         self.pipes = pygame.sprite.Group()
         self.play = Play(self)
@@ -48,7 +53,9 @@ class FlappyBirdClone:
             self._update_all()
 
             if self.state == self.STATE_PLAY:
-                self._check_for_points()
+                if self._gone_past_pipe():
+                    self.scoreboard.score += 1
+
                 self._check_for_collisions()
 
             self._draw_all()
@@ -85,6 +92,7 @@ class FlappyBirdClone:
                             or self.state == self.STATE_START
                         ):
                             self.state = self.STATE_PLAY
+                        pygame.mixer.music.unpause()
                         self.bird.jump()
                     case pygame.K_p:
                         self.delta_time = (
@@ -92,6 +100,8 @@ class FlappyBirdClone:
                         )
                         self.state = self.STATE_PAUSE
                         self.play.hide()
+                        self.explosion_sound.play()
+                        pygame.mixer.music.pause()
 
     def _update_all(self):
         if not (self.state == self.STATE_PAUSE or self.state == self.STATE_GAME_OVER):
@@ -111,6 +121,7 @@ class FlappyBirdClone:
         if self.state == self.STATE_PAUSE:
             self.pause.draw()
         self.play.draw()
+        self.scoreboard.draw()
 
     def _spawn_pipe(self):
         if (
@@ -121,17 +132,22 @@ class FlappyBirdClone:
             self.settings.new_spawn_time()
             self.pipes_spawn_timer = pygame.time.get_ticks()
 
-    def _check_for_points(self):
+    def _gone_past_pipe(self):
+        count = 0
         for pipe in self.pipes:
             if not pipe.point_awarded and self.bird.rect.left > pipe.rect.right:
-                pipe.point_awarded = True
-                print("+1 point")
+                pipe.award_point()
+                count += 1
+                if count == 2:
+                    return True
+        return False
 
     def _check_for_collisions(self):
         if (
             pygame.sprite.spritecollide(self.bird, self.pipes, False)
             or self.bird.rect.bottom >= self.scenery.ground_rect.top
         ):
+            pygame.mixer.music.pause()
             self.bird.died()
             self.state = self.STATE_GAME_OVER
 
