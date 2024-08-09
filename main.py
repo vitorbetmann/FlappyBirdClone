@@ -25,6 +25,7 @@ class FlappyBirdClone:
 
     def __init__(self):
         pygame.init()
+        pygame.mouse.set_visible(False)
         self.settings = Settings()
         self.screen = pygame.display.set_mode(Settings.SCREEN_SIZE, flags=pygame.SCALED)
         self.screen_rect = self.screen.get_rect()
@@ -65,7 +66,7 @@ class FlappyBirdClone:
             self._update_all()
 
             if self.state == self.STATE_START:
-                self._countdown()
+                self._countdown(3)
 
             if self.state == self.STATE_PLAY:
                 self._check_points()
@@ -110,12 +111,9 @@ class FlappyBirdClone:
                             self.timer_start = pygame.time.get_ticks()
                             self.state = self.STATE_START
 
-                        elif self.state == self.STATE_START:
-                            self.bird.jump()
-                            self.state = self.STATE_PLAY
-
                         elif self.state == self.STATE_GAME_OVER:
-                            self.reset()
+                            if pygame.time.get_ticks() - self.timer_start > 1000:
+                                self.reset()
 
                     case pygame.K_p:
                         self.delta_time = (
@@ -145,13 +143,13 @@ class FlappyBirdClone:
         if self.state == self.STATE_PAUSE:
             self.pause.draw()
         self.play.draw()
-        if self.state != self.STATE_GAME_OVER or self.state != self.STATE_MENU:
+        if not (self.state == self.STATE_GAME_OVER or self.state == self.STATE_MENU):
             self.scoreboard.draw()
         if self.state == self.STATE_GAME_OVER:
             self.scoreboard.draw_game_over()
-        if self.state == self.STATE_MENU:
+        elif self.state == self.STATE_MENU:
             self.scoreboard.draw_menu()
-        if self.state == self.STATE_START:
+        elif self.state == self.STATE_START:
             self.timer.draw()
 
     def _spawn_pipe(self):
@@ -177,15 +175,16 @@ class FlappyBirdClone:
         ):
             pygame.mixer.music.pause()
             self.bird.died()
+            self.timer_start = pygame.time.get_ticks()
             self.state = self.STATE_GAME_OVER
 
-    def _countdown(self):
+    def _countdown(self, time_amount):
         current_time = pygame.time.get_ticks()
         delta_time = current_time - self.timer_start
-        countdown_str = str(3 - int(delta_time / 1000))
+        countdown_str = str(time_amount - int(delta_time / 1000))
         self.timer = Timer(self, countdown_str)
 
-        if delta_time >= 3000:
+        if delta_time >= time_amount * 1000:
             self.state = self.STATE_PLAY
 
 
